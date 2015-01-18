@@ -1,0 +1,26 @@
+#mainCanvas{
+	border: 1px solid black;
+}
+
+.canvasContainer{
+	display: inline-block;
+	float: left;
+}
+
+.optionsContainer{
+	padding-left: 10px;
+	display: inline-block;
+	float:left;
+}
+
+.shapeChoice{
+	padding: 20px;
+	margin-bottom: 10px;
+	background-color: black;
+	color: white;
+	border-radius: 10px;
+}
+
+.shapeChoice:hover{
+	background-color: rgb(50, 50, 50);
+}

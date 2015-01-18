@@ -1,20 +1,40 @@
 <!doctype html>
 <html>
     <head>
-        <meta charset="utf-8">
-        <meta name="description" content="">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta charset='utf-8'>
+        <meta name='description' content=''>
+        <meta name='viewport' content='width=device-width, initial-scale=1'>
         <title>Paintzilla</title>
-        <link rel="stylesheet" href="style.css">
+        <link rel='stylesheet' href='style.css'>
     </head>
     <body>
+        <div class='canvasContainer'>
+	    	
+	    	<canvas id='mainCanvas' width='500' height='400'>
+	    		Canvas not supported !
+	    	</canvas>
         
-    	<canvas id='mainCanvas'>
-    		Canvas not supported !
-    	</canvas>
+        </div>
 
-        <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>	
-        <script src="main.js"></script>
+        <div class='optionsContainer'>
+	        
+	        <div class='shapeChoice' data-shape='Rectangle'>
+				Rectangle            
+	        </div>
+
+	        <div class='shapeChoice' data-shape='Circle'>
+	            Circle
+	        </div>
+
+	        <div class='shapeChoice' data-shape='Line'>
+	            Line
+	        </div>
+        	
+        </div>
+
+        <script src='Base.js'></script>
+        <script type='text/javascript' src='http://ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js'></script>	
+        <script src='main.js'></script>
     </body>
 </html>
 
