@@ -1,17 +1,31 @@
 var canvas = document.getElementById('mainCanvas');
 var context = canvas.getContext('2d');
 
+var backgroundCanvas = document.createElement('canvas');
+var backgroundContext = backgroundCanvas.getContext('2d');
+
+backgroundCanvas.width = 500;
+backgroundCanvas.height = 500;
+backgroundCanvas.id = 'backgroundCanvas';
+
+var canvasParent = canvas.parentNode;
+canvasParent.appendChild(backgroundCanvas);
+
 var canvasProps = {
 	isDrawing: false,
 	shapes: [],
 	drawAll: function () {
-		context.clearRect(0, 0, 500, 400);
+		backgroundContext.clearRect(0, 0, 500, 500);
+		context.clearRect(0, 0, 500, 500);
 		for (var i = 0; i < canvasProps.shapes.length; i++) {
-			canvasProps.shapes[i].draw(context);
+			canvasProps.shapes[i].draw(backgroundContext);
 		}
 	},
 	currentShape: {},
-	currentType: 'Line'
+	currentType: 'Pen',
+	canvasWidth: 500,
+	canvasHeight: 500,
+	undoArray: []
 };
 
 
@@ -31,6 +45,9 @@ var global = {
 			this.base(x0, y0, x, y);
 		},
 		draw: function (ctx) {
+			if (canvasProps.isDrawing) {
+				ctx.clearRect(0, 0, canvasProps.canvasWidth, canvasProps.canvasHeight);
+			}
 			ctx.beginPath();
 			ctx.moveTo(this.x0, this.y0);
 			ctx.lineTo(this.x, this.y);
@@ -46,6 +63,9 @@ var global = {
 			this.base(x0, y0, x, y);
 		},
 		draw: function (ctx) {
+			if (canvasProps.isDrawing) {
+				ctx.clearRect(0, 0, canvasProps.canvasWidth, canvasProps.canvasHeight);
+			}
 			ctx.beginPath();
 			ctx.rect(this.x, this.y, this.width, this.height);
 			ctx.stroke();
@@ -62,6 +82,9 @@ var global = {
 			this.base(x0, y0, x, y);
 		},
 		draw: function (ctx) {
+			if (canvasProps.isDrawing) {
+				ctx.clearRect(0, 0, canvasProps.canvasWidth, canvasProps.canvasHeight);
+			}
 			ctx.beginPath();
 			ctx.arc(this.x, this.y, this.radius, 0, 2 * Math.PI);
 			ctx.stroke();
@@ -76,6 +99,35 @@ var global = {
 
 			this.radius = Math.sqrt(distX * distX + distY * distY);
 		}
+	}),
+	Pen: Shape.extend({
+		constructor: function (x0, y0) {
+			this.points = [{
+				x: x0,
+				y: y0
+			}];
+		},
+		move: function (x, y) {
+			this.points.push({
+				x: x,
+				y: y
+			});
+		},
+		draw: function (ctx) {
+			if (canvasProps.isDrawing) {
+				ctx.clearRect(0, 0, canvasProps.canvasWidth, canvasProps.canvasHeight);
+			}
+			ctx.lineWidth = 10;
+			ctx.beginPath();
+			for (var i = 0; i < this.points.length; i++) {
+				if (i === 0) {
+					ctx.moveTo(this.points[i].x, this.points[i].y);
+				} else {
+					ctx.lineTo(this.points[i].x, this.points[i].y);
+				}
+			}
+			ctx.stroke();
+		}
 	})
 };
 
@@ -85,6 +137,7 @@ $('.shapeChoice').click(function (e) {
 
 $('#mainCanvas').mousedown(function (e) {
 	if (!canvasProps.isDrawing) {
+		canvasProps.undoArray = [];
 
 		canvasProps.isDrawing = true;
 		var x0 = e.pageX - this.offsetLeft;
@@ -102,7 +155,6 @@ $('#mainCanvas').mousemove(function (e) {
 
 		canvasProps.currentShape.move(x, y);
 
-		canvasProps.drawAll();
 		canvasProps.currentShape.draw(context);
 
 	}
@@ -116,13 +168,27 @@ $('#mainCanvas').mouseup(function (e) {
 
 		canvasProps.currentShape.move(x, y);
 
-		canvasProps.currentShape.draw(context);
-
 		canvasProps.shapes.push(canvasProps.currentShape);
-
-		canvasProps.drawAll();
 
 		canvasProps.isDrawing = false;
 
+		canvasProps.drawAll();
+
+	}
+});
+
+$('#undo').click(function (e) {
+	var undoShape = canvasProps.shapes.pop();
+	if (undoShape) {
+		canvasProps.undoArray.push(undoShape);
+		canvasProps.drawAll();
+	}
+});
+
+$('#redo').click(function (e) {
+	var redoShape = canvasProps.undoArray.pop();
+	if (redoShape) {
+		canvasProps.shapes.push(redoShape);
+		canvasProps.drawAll();
 	}
 });
