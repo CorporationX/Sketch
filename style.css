@@ -20,30 +20,13 @@ html, body{
 }
 
 .optionsContainer{
-	width: 100px;
+	width: 150px;
 	margin-left: 550px;
 	display: inline-block;
 }
 
-.shapeChoice{
-	display: inline-block;
-	text-align: center;
-	width: 100px;
-	padding: 20px;
-	margin-bottom: 10px;
-	background-color: black;
-	color: white;
-	border-radius: 10px;
-}
-
-.shapeChoice:hover{
-	background-color: rgb(50, 50, 50);
-}
-
 .choices{
-	display: inline-block;
 	text-align: center;
-	width: 100px;
 	padding: 20px;
 	margin-bottom: 10px;
 	background-color: black;
@@ -53,4 +36,29 @@ html, body{
 
 .choices:hover{
 	background-color: rgb(50, 50, 50);
+	cursor: pointer;
+}
+
+.optionsContainer div{
+
+	-moz-user-select: none;
+
+	-webkit-user-select: none;
+
+	user-select: none;
+}
+
+.attributeChoice{
+	height: 32px;
+	line-height: 32px;
+	margin-bottom: 10px;
+}
+
+.attributeChoice .sp-replacer{
+	float: right;
+	cursor: pointer;
+}
+
+.slider-container{
+	margin-top: 15px;
 }

@@ -117,7 +117,6 @@ var global = {
 			if (canvasProps.isDrawing) {
 				ctx.clearRect(0, 0, canvasProps.canvasWidth, canvasProps.canvasHeight);
 			}
-			ctx.lineWidth = 10;
 			ctx.beginPath();
 			for (var i = 0; i < this.points.length; i++) {
 				if (i === 0) {
@@ -190,5 +189,31 @@ $('#redo').click(function (e) {
 	if (redoShape) {
 		canvasProps.shapes.push(redoShape);
 		canvasProps.drawAll();
+	}
+});
+
+$('#lineColor').spectrum({
+	color: '#000',
+	change: function (color) {
+		console.log('changed line color to:', color.toHexString());
+	}
+});
+
+$('#fillColor').spectrum({
+	color: '#000',
+	change: function (color) {
+		console.log('changed line color to:', color.toHexString());
+	}
+});
+
+$('#lineWidth').jRange({
+	from: 1,
+	to: 100,
+	showLabels: true,
+	step: 1,
+	width: 150,
+	showScale: false,
+	onstatechange: function (val) {
+		console.log('val is', val);
 	}
 });

@@ -5,6 +5,8 @@
         <meta name='description' content=''>
         <meta name='viewport' content='width=device-width, initial-scale=1'>
         <title>Paintzilla</title>
+        <link rel='stylesheet' href='css/spectrum.css'>
+        <link rel='stylesheet' href='css/jquery.range.css'>
         <link rel='stylesheet' href='style.css'>
     </head>
     <body>
@@ -18,19 +20,19 @@
 
         <div class='optionsContainer'>
 	        
-	        <div class='shapeChoice' data-shape='Rectangle'>
+	        <div class='shapeChoice choices' data-shape='Rectangle'>
 				Rectangle            
 	        </div>
 
-	        <div class='shapeChoice' data-shape='Circle'>
+	        <div class='shapeChoice choices' data-shape='Circle'>
 	            Circle
 	        </div>
 
-	        <div class='shapeChoice' data-shape='Line'>
+	        <div class='shapeChoice choices' data-shape='Line'>
 	            Line
 	        </div>
 
-	        <div class='shapeChoice' data-shape='Pen'>
+	        <div class='shapeChoice choices' data-shape='Pen'>
 	            Pen
 	        </div>
 
@@ -41,13 +43,30 @@
 	        <div class='choices' id='redo'>
 	            Redo
 	        </div>
+
+			<div class='attributeChoice'>
+				<span>Outline Color: </span>
+	            <input type='text' class='colorpicker' id='lineColor' />
+	        </div>
+
+			<div class='attributeChoice'>
+				<span>Fill Color: </span>
+	            <input type='text' class='colorpicker' id='fillColor' />
+	        </div>
+
+			<div class='attributeChoice'>
+				<span>Linewidth: </span>
+	            <input type='hidden' value='10' id='lineWidth' />
+	        </div>
         	
         </div>
 
 
 
+        <script src='js/jquery.min.js'></script>	
         <script src='Base.js'></script>
-        <script type='text/javascript' src='http://ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js'></script>	
+        <script src='js/jquery.range.js'></script>
+        <script src='js/spectrum.js'></script>
         <script src='main.js'></script>
     </body>
 </html>
