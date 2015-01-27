@@ -14,6 +14,14 @@ canvasParent.appendChild(backgroundCanvas);
 var canvasProps = {
 	isDrawing: false,
 	isMoving: false,
+	isWriting: false,
+	canDraw: true,
+	canMove: false,
+	canWrite: false,
+	start: {
+		x0: 0,
+		y0: 0
+	},
 	shapes: [],
 	drawAll: function () {
 		backgroundContext.clearRect(0, 0, 500, 500);
@@ -44,7 +52,13 @@ var Shape = Base.extend({
 	draw: function (ctx) {
 
 	},
-	move: function (x, y) {
+	moveTo: function (xChange, yChange) {
+
+	},
+	contains: function (x, y) {
+
+	},
+	drawTo: function (x, y) {
 
 	}
 });
@@ -55,7 +69,7 @@ var global = {
 			this.base(x0, y0, x, y, lineWidth, lineColor);
 		},
 		draw: function (ctx) {
-			if (canvasProps.isDrawing) {
+			if (canvasProps.isDrawing || canvasProps.isMoving) {
 				ctx.clearRect(0, 0, canvasProps.canvasWidth, canvasProps.canvasHeight);
 			}
 			ctx.beginPath();
@@ -65,11 +79,11 @@ var global = {
 			ctx.strokeStyle = this.lineColor;
 			ctx.stroke();
 		},
-		move: function (x, y) {
+		drawTo: function (x, y) {
 			this.x = x;
 			this.y = y;
 		},
-		contains: function (x, y, ctx) {
+		contains: function (x, y) {
 
 			var yStart = this.y0;
 			var yEnd = this.y;
@@ -83,26 +97,30 @@ var global = {
 
 			if (Math.abs(xEnd - xStart) <= 50) {
 				var offset = this.lineWidth / 4;
+
 				var leftEdge = xStart - offset;
 				var rightEdge = xEnd + offset;
 				var topEdge = Math.min(this.y, this.y0);
 				var bottomEdge = Math.max(this.y, this.y0);
 
 				if (x < leftEdge || x > rightEdge || y < topEdge || y > bottomEdge) {
-					console.log('straight false');
 					return false;
 				}
-				console.log('straight true');
 				return true;
 			}
 
-			if ((y < (parseInt(slope * (x - xPoint) + yPoint - 10 - (this.lineWidth / 2)))) ||
-				(y > parseInt(slope * (x - xPoint) + yPoint + 10 + (this.lineWidth / 2)))) {
-				console.log('norm false');
+			if ((y < (parseInt(slope * (x - xPoint) + yPoint - 10 - (this.lineWidth / 4)))) ||
+				(y > parseInt(slope * (x - xPoint) + yPoint + 10 + (this.lineWidth / 4)))) {
 				return false;
 			}
-			console.log('norm true');
 			return true;
+		},
+		moveTo: function (xChange, yChange) {
+			this.x0 += xChange;
+			this.y0 += yChange;
+			this.x += xChange;
+			this.y += yChange;
+
 		}
 	}),
 	Rectangle: Shape.extend({
@@ -110,7 +128,7 @@ var global = {
 			this.base(x0, y0, x, y, lineWidth, lineColor, fillColor);
 		},
 		draw: function (ctx) {
-			if (canvasProps.isDrawing) {
+			if (canvasProps.isDrawing || canvasProps.isMoving) {
 				ctx.clearRect(0, 0, canvasProps.canvasWidth, canvasProps.canvasHeight);
 			}
 			ctx.beginPath();
@@ -119,13 +137,16 @@ var global = {
 			ctx.strokeStyle = this.lineColor;
 			ctx.stroke();
 		},
-		move: function (x, y) {
+		drawTo: function (x, y) {
 			this.x = Math.min(x, this.x0);
 			this.y = Math.min(y, this.y0);
 			this.width = Math.abs(x - this.x0);
 			this.height = Math.abs(y - this.y0);
 		},
-		contains: function (x, y, ctx) {
+		contains: function (x, y) {
+
+			console.log('width', this.width, '   height', this.height);
+
 			var offset = this.lineWidth / 2;
 			var leftEdge = this.x0 - offset;
 			var rightEdge = this.x0 + offset + this.width;
@@ -136,6 +157,10 @@ var global = {
 				return false;
 			}
 			return true;
+		},
+		moveTo: function (xChange, yChange) {
+			this.x += xChange;
+			this.y += yChange;
 		}
 	}),
 	Circle: Shape.extend({
@@ -143,7 +168,7 @@ var global = {
 			this.base(x0, y0, x, y, lineWidth, lineColor, fillColor);
 		},
 		draw: function (ctx) {
-			if (canvasProps.isDrawing) {
+			if (canvasProps.isDrawing || canvasProps.isMoving) {
 				ctx.clearRect(0, 0, canvasProps.canvasWidth, canvasProps.canvasHeight);
 			}
 			ctx.beginPath();
@@ -152,7 +177,7 @@ var global = {
 			ctx.strokeStyle = this.lineColor;
 			ctx.stroke();
 		},
-		move: function (x, y) {
+		drawTo: function (x, y) {
 
 			this.x = Math.abs(this.x0 - x) / 2 + Math.min(this.x0, x);
 			this.y = Math.abs(this.y0 - y) / 2 + Math.min(this.y0, y);
@@ -161,6 +186,21 @@ var global = {
 			var distY = Math.abs(this.y0 - y) / 2;
 
 			this.radius = Math.sqrt(distX * distX + distY * distY);
+		},
+		contains: function (x, y) {
+
+			var xDist = Math.abs(x - this.x);
+			var yDist = Math.abs(y - this.y);
+			var radDist = this.radius + this.lineWidth / 4;
+
+			if ((Math.pow((xDist), 2)) + (Math.pow((yDist), 2)) <= Math.pow(radDist, 2)) {
+				return true;
+			}
+			return false;
+		},
+		moveTo: function (xChange, yChange) {
+			this.x += xChange;
+			this.y += yChange;
 		}
 	}),
 	Pen: Shape.extend({
@@ -171,14 +211,14 @@ var global = {
 				y: y0
 			}];
 		},
-		move: function (x, y) {
+		drawTo: function (x, y) {
 			this.points.push({
 				x: x,
 				y: y
 			});
 		},
 		draw: function (ctx) {
-			if (canvasProps.isDrawing) {
+			if (canvasProps.isDrawing || canvasProps.isMoving) {
 				ctx.clearRect(0, 0, canvasProps.canvasWidth, canvasProps.canvasHeight);
 			}
 			ctx.beginPath();
@@ -193,7 +233,7 @@ var global = {
 			ctx.strokeStyle = this.lineColor;
 			ctx.stroke();
 		},
-		contains: function (x, y, ctx) {
+		contains: function (x, y) {
 
 			for (var i = 0; i < this.points.length; i++) {
 
@@ -203,61 +243,141 @@ var global = {
 				var topEdge = this.points[i].y - offset;
 				var bottomEdge = this.points[i].y + offset;
 
-				// console.log('x', x);
-				// console.log('y', y);
-				// console.log('leftEdge', leftEdge);
-				// console.log('rightEdge', rightEdge);
-				// console.log('bottomEdge', bottomEdge);
-				// console.log('topEdge', topEdge);
 
 				if (x < leftEdge || x > rightEdge || y < topEdge || y > bottomEdge) {
 
 				} else {
-					console.log('true');
 					return true;
 				}
 			}
-			console.log('false');
 			return false;
+		},
+		moveTo: function (xChange, yChange) {
+			for (var i = 0; i < this.points.length; i++) {
+				this.points[i].x += xChange;
+				this.points[i].y += yChange;
+			}
+		}
+	}),
+	Text: Shape.extend({
+		constructor: function (x0, y0, text, lineColor, fontSize, fontStyle) {
+			this.base(x0, y0, undefined, undefined, undefined, lineColor);
+			this.fontSize = fontSize;
+			this.fontStyle = fontStyle;
+			this.text = text;
+		},
+		draw: function (ctx) {
+
+			if (canvasProps.isDrawing || canvasProps.isMoving) {
+				ctx.clearRect(0, 0, canvasProps.canvasWidth, canvasProps.canvasHeight);
+			}
+
+			ctx.font = this.fontSize + 'px' + ' ' + this.fontStyle;
+			ctx.fillStyle = this.lineColor;
+			ctx.textBaseline = 'top';
+			ctx.fillText(this.text, this.x0, this.y0);
+
+		},
+		contains: function (x, y) {
+
+			context.font = this.fontSize + 'px' + ' ' + this.fontStyle;
+			var width = context.measureText(this.text).width + 5;
+			var fontSize = parseInt(this.fontSize);
+			var height = fontSize + 5;
+
+			if (x < this.x0 || x > this.x0 + width || y < this.y0 || y > this.y0 + height) {
+				return false;
+			}
+			return true;
+		},
+		moveTo: function (xChange, yChange) {
+			this.x0 += xChange;
+			this.y0 += yChange;
 		}
 	})
+
 };
 
-$('.shapeChoice').click(function (e) {
-	canvasProps.currentType = $(this).data('shape');
-});
 
 $('#mainCanvas').mousedown(function (e) {
-	var tempx = e.pageX - this.offsetLeft;
-	var tempy = e.pageY - this.offsetTop;
-	console.log('clicked x: ', tempx, ' and y: ', tempy);
+	var x0 = e.pageX - this.offsetLeft;
+	var y0 = e.pageY - this.offsetTop;
 
-	if (canvasProps.isMoving) {
-		for (var i = 0; i < canvasProps.shapes.length; i++) {
-			canvasProps.shapes[i].contains(tempx, tempy, context);
+	if (canvasProps.canMove) {
+
+		for (var i = canvasProps.shapes.length - 1; i >= 0; i--) {
+			if (canvasProps.shapes[i].contains(x0, y0)) {
+
+				canvasProps.currentShape = canvasProps.shapes[i];
+				canvasProps.shapes.splice(i, 1);
+				canvasProps.start.x0 = x0;
+
+				canvasProps.start.y0 = y0;
+
+				canvasProps.drawAll();
+
+				canvasProps.isMoving = true;
+
+				canvasProps.currentShape.draw(context);
+				break;
+
+			}
 		}
-	} else if (!canvasProps.isDrawing) {
+	} else if (canvasProps.canDraw) {
 		canvasProps.undoArray = [];
 
 		canvasProps.isDrawing = true;
-		var x0 = e.pageX - this.offsetLeft;
-		var y0 = e.pageY - this.offsetTop;
 
 		// TODO: Check if function and comment what on earth this does
 		canvasProps.currentShape = new global[canvasProps.currentType](x0, y0, x0, y0, canvasProps.currentLineWidth, canvasProps.currentLineColor, canvasProps.currentFillColor);
 
+	} else if (canvasProps.canWrite) {
+
+		if (!canvasProps.isWriting) {
+
+			canvasProps.isWriting = true;
+
+			canvasProps.start.x0 = x0;
+
+			canvasProps.start.y0 = y0;
+
+			$('#textBox').show();
+
+			$('#textBox').offset({
+				top: y0,
+				left: x0
+			});
+
+			$('#textBox').css('z-index', 10);
+
+		}
 	}
 });
 
 $('#mainCanvas').mousemove(function (e) {
+
+	var x = e.pageX - this.offsetLeft;
+	var y = e.pageY - this.offsetTop;
+
 	if (canvasProps.isDrawing) {
 
-		var x = e.pageX - this.offsetLeft;
-		var y = e.pageY - this.offsetTop;
-
-		canvasProps.currentShape.move(x, y);
+		canvasProps.currentShape.drawTo(x, y);
 
 		canvasProps.currentShape.draw(context);
+
+	} else if (canvasProps.isMoving) {
+
+		var xChange = x - canvasProps.start.x0;
+		var yChange = y - canvasProps.start.y0;
+
+		canvasProps.currentShape.moveTo(xChange, yChange);
+
+		canvasProps.currentShape.draw(context);
+
+		canvasProps.start.x0 = x;
+		canvasProps.start.y0 = y;
+
+	} else if (canvasProps.isWriting) {
 
 	}
 });
@@ -268,15 +388,23 @@ $('#mainCanvas').mouseup(function (e) {
 		var x = e.pageX - this.offsetLeft;
 		var y = e.pageY - this.offsetTop;
 
-		canvasProps.currentShape.move(x, y);
+		canvasProps.currentShape.drawTo(x, y);
 
 		canvasProps.shapes.push(canvasProps.currentShape);
-
-		console.log('current shape', canvasProps.currentShape);
 
 		canvasProps.isDrawing = false;
 
 		canvasProps.drawAll();
+
+	} else if (canvasProps.isMoving) {
+
+		canvasProps.shapes.push(canvasProps.currentShape);
+
+		canvasProps.isMoving = false;
+
+		canvasProps.drawAll();
+
+	} else if (canvasProps.isWriting) {
 
 	}
 });
@@ -297,9 +425,47 @@ $('#redo').click(function (e) {
 	}
 });
 
+$('.shapeChoice').click(function (e) {
+	canvasProps.currentType = $(this).data('shape');
+	canvasProps.canDraw = true;
+	canvasProps.canMove = false;
+	canvasProps.canWrite = false;
+});
+
 $('#move').click(function (e) {
-	canvasProps.isDrawing = false;
-	canvasProps.isMoving = true;
+	canvasProps.canMove = true;
+	canvasProps.canDraw = false;
+	canvasProps.canWrite = false;
+});
+
+$('#text').click(function (e) {
+	canvasProps.canDraw = false;
+	canvasProps.canMove = false;
+	canvasProps.canWrite = true;
+});
+
+$('#textBox').bind('keypress', function (e) {
+
+
+	var code = e.keyCode || e.which;
+	if (code == 13) {
+		e.preventDefault();
+
+		var text = $('#textBox').val();
+
+		canvasProps.currentShape = new global.Text(canvasProps.start.x0, canvasProps.start.y0, text, canvasProps.currentLineColor, '28', 'serif');
+
+		canvasProps.shapes.push(canvasProps.currentShape);
+
+		$('#textBox').hide();
+
+		$('#textBox').val('');
+
+		canvasProps.drawAll();
+
+		canvasProps.isWriting = false;
+	}
+
 });
 
 $('#lineColor').spectrum({
