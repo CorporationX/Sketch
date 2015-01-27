@@ -27,7 +27,7 @@ html, body{
 
 .choices{
 	text-align: center;
-	padding: 10px;
+	padding: 5px;
 	margin-bottom: 10px;
 	background-color: black;
 	color: white;
@@ -65,4 +65,22 @@ html, body{
 
 #textBox{
 	display: none;
+}
+
+#fontSize{
+	float: right;
+	cursor: pointer;
+	height: 32px;
+	width: 50px;
+}
+
+.clearTop{
+	margin-top: 40px;
+}
+
+#fontStyle{
+	float: right;
+	cursor: pointer;
+	height: 32px;
+	width: 100%;
 }

@@ -37,7 +37,9 @@ var canvasProps = {
 	undoArray: [],
 	currentLineColor: '#000000',
 	currentFillColor: '#000000',
-	currentLineWidth: 10
+	currentLineWidth: 10,
+	currentFontSize: 12,
+	currentFontStyle: 'Georgia'
 };
 
 
@@ -453,7 +455,7 @@ $('#textBox').bind('keypress', function (e) {
 
 		var text = $('#textBox').val();
 
-		canvasProps.currentShape = new global.Text(canvasProps.start.x0, canvasProps.start.y0, text, canvasProps.currentLineColor, '28', 'serif');
+		canvasProps.currentShape = new global.Text(canvasProps.start.x0, canvasProps.start.y0, text, canvasProps.currentLineColor, canvasProps.currentFontSize, canvasProps.currentFontStyle);
 
 		canvasProps.shapes.push(canvasProps.currentShape);
 
@@ -484,7 +486,7 @@ $('#fillColor').spectrum({
 
 $('#lineWidth').jRange({
 	from: 1,
-	to: 100,
+	to: 50,
 	showLabels: true,
 	step: 1,
 	width: 150,
@@ -492,4 +494,12 @@ $('#lineWidth').jRange({
 	onstatechange: function (val) {
 		canvasProps.currentLineWidth = parseInt(val);
 	}
+});
+
+$('#fontSize').change(function (e) {
+	canvasProps.currentFontSize = parseInt($(this).val());
+});
+
+$('#fontStyle').change(function (e) {
+	canvasProps.currentFontStyle = $(this).val();
 });
