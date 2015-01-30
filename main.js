@@ -88,52 +88,34 @@ var global = {
 		contains: function (x, y) {
 
 			var yStart = this.y0;
-			console.log('yStart: ', yStart);
 			var yEnd = this.y;
-			console.log('yEnd: ', yEnd);
-			var xStart = this.x0; //Math.min(this.x, this.x0);
-			console.log('xStart: ', xStart);
-			var xEnd = this.x; //Math.max(this.x, this.x0);
-			console.log('xEnd: ', xEnd);
-
-			var xPoint = this.x0;
-			('xPoint: ', xPoint);
-			var yPoint = this.y0;
-			('yPoint ', yPoint);
+			var xStart = Math.min(this.x, this.x0);
+			var xEnd = Math.max(this.x, this.x0);
 
 			var slope = (yEnd - yStart) / (xEnd - xStart);
-			console.log('slope: ', slope);
 
-			console.log('x:', x);
-			console.log('y:', y);
+			var xPoint = this.x0;
+			var yPoint = this.y0;
 
 			if (Math.abs(xEnd - xStart) <= 50) {
 				var offset = this.lineWidth / 4;
+
 				var leftEdge = xStart - offset;
 				var rightEdge = xEnd + offset;
 				var topEdge = Math.min(this.y, this.y0);
 				var bottomEdge = Math.max(this.y, this.y0);
 
 				if (x < leftEdge || x > rightEdge || y < topEdge || y > bottomEdge) {
-					console.log('shitmix: false');
 					return false;
 				}
-				console.log('shitmix: true');
 				return true;
 			}
 
-			console.log('lw:', this.lineWidth);
-
-			if ((y < (parseInt(slope * (x - xPoint) + yPoint - 10 - (this.lineWidth)))) ||
-				(y > parseInt(slope * (x - xPoint) + yPoint + 10 + (this.lineWidth))) ||
-				(x < Math.min(xStart, xEnd)) ||
-				(x > Math.max(xStart, xEnd))) {
-				console.log('false');
+			if ((y < (parseInt(slope * (x - xPoint) + yPoint - 10 - (this.lineWidth / 4)))) ||
+				(y > parseInt(slope * (x - xPoint) + yPoint + 10 + (this.lineWidth / 4)))) {
 				return false;
 			}
-			console.log('true');
 			return true;
-
 		},
 		moveTo: function (xChange, yChange) {
 			this.x0 += xChange;
@@ -429,19 +411,7 @@ $('#mainCanvas').mouseup(function (e) {
 	}
 });
 
-function resetState() {
-	canvasProps.canDraw = false;
-	canvasProps.canMove = false;
-	canvasProps.canWrite = false;
-	canvasProps.isWriting = false;
-	canvasProps.isDrawing = false;
-	canvasProps.isMoving = false;
-	$('#textBox').hide();
-	$('#textBox').val('');
-}
-
 $('#undo').click(function (e) {
-	resetState();
 	var undoShape = canvasProps.shapes.pop();
 	if (undoShape) {
 		canvasProps.undoArray.push(undoShape);
@@ -450,7 +420,6 @@ $('#undo').click(function (e) {
 });
 
 $('#redo').click(function (e) {
-	resetState();
 	var redoShape = canvasProps.undoArray.pop();
 	if (redoShape) {
 		canvasProps.shapes.push(redoShape);
@@ -459,18 +428,21 @@ $('#redo').click(function (e) {
 });
 
 $('.shapeChoice').click(function (e) {
-	resetState();
 	canvasProps.currentType = $(this).data('shape');
 	canvasProps.canDraw = true;
+	canvasProps.canMove = false;
+	canvasProps.canWrite = false;
 });
 
 $('#move').click(function (e) {
-	resetState();
 	canvasProps.canMove = true;
+	canvasProps.canDraw = false;
+	canvasProps.canWrite = false;
 });
 
 $('#text').click(function (e) {
-	resetState();
+	canvasProps.canDraw = false;
+	canvasProps.canMove = false;
 	canvasProps.canWrite = true;
 });
 
