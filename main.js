@@ -124,8 +124,8 @@ var global = {
 
 			console.log('lw:', this.lineWidth);
 
-			if ((y < (parseInt(slope * (x - xPoint) + yPoint - (this.lineWidth)))) ||
-				(y > parseInt(slope * (x - xPoint) + yPoint + (this.lineWidth))) ||
+			if ((y < (parseInt(slope * (x - xPoint) + yPoint - 10 - (this.lineWidth)))) ||
+				(y > parseInt(slope * (x - xPoint) + yPoint + 10 + (this.lineWidth))) ||
 				(x < Math.min(xStart, xEnd)) ||
 				(x > Math.max(xStart, xEnd))) {
 				console.log('false');
