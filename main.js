@@ -89,13 +89,10 @@ var global = {
 
 			var yStart = this.y0;
 			var yEnd = this.y;
-			var xStart = Math.min(this.x, this.x0);
-			var xEnd = Math.max(this.x, this.x0);
+			var xStart = this.x0; //Math.min(this.x, this.x0);
+			var xEnd = this.x; //Math.max(this.x, this.x0);
 
 			var slope = (yEnd - yStart) / (xEnd - xStart);
-
-			var xPoint = this.x0;
-			var yPoint = this.y0;
 
 			if (Math.abs(xEnd - xStart) <= 50) {
 				var offset = this.lineWidth / 4;
@@ -111,8 +108,10 @@ var global = {
 				return true;
 			}
 
-			if ((y < (parseInt(slope * (x - xPoint) + yPoint - 10 - (this.lineWidth / 4)))) ||
-				(y > parseInt(slope * (x - xPoint) + yPoint + 10 + (this.lineWidth / 4)))) {
+			if ((y < (parseInt(slope * (x - xEnd) + yEnd - 10 - (this.lineWidth)))) ||
+				(y > parseInt(slope * (x - xEnd) + yEnd + 10 + (this.lineWidth))) ||
+				(x < Math.min(xStart, xEnd)) ||
+				(x > Math.max(xStart, xEnd))) {
 				return false;
 			}
 			return true;
