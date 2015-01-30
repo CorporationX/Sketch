@@ -411,7 +411,19 @@ $('#mainCanvas').mouseup(function (e) {
 	}
 });
 
+function resetState() {
+	canvasProps.canDraw = false;
+	canvasProps.canMove = false;
+	canvasProps.canWrite = false;
+	canvasProps.isWriting = false;
+	canvasProps.isDrawing = false;
+	canvasProps.isMoving = false;
+	$('#textBox').hide();
+	$('#textBox').val('');
+}
+
 $('#undo').click(function (e) {
+	resetState();
 	var undoShape = canvasProps.shapes.pop();
 	if (undoShape) {
 		canvasProps.undoArray.push(undoShape);
@@ -420,6 +432,7 @@ $('#undo').click(function (e) {
 });
 
 $('#redo').click(function (e) {
+	resetState();
 	var redoShape = canvasProps.undoArray.pop();
 	if (redoShape) {
 		canvasProps.shapes.push(redoShape);
@@ -428,21 +441,18 @@ $('#redo').click(function (e) {
 });
 
 $('.shapeChoice').click(function (e) {
+	resetState();
 	canvasProps.currentType = $(this).data('shape');
 	canvasProps.canDraw = true;
-	canvasProps.canMove = false;
-	canvasProps.canWrite = false;
 });
 
 $('#move').click(function (e) {
+	resetState();
 	canvasProps.canMove = true;
-	canvasProps.canDraw = false;
-	canvasProps.canWrite = false;
 });
 
 $('#text').click(function (e) {
-	canvasProps.canDraw = false;
-	canvasProps.canMove = false;
+	resetState();
 	canvasProps.canWrite = true;
 });
 
