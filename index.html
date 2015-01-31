@@ -5,135 +5,155 @@
         <meta name='description' content=''>
         <meta name='viewport' content='width=device-width, initial-scale=1'>
         <title>Paintzilla</title>
+        <link rel='stylesheet' href='css/bootstrap.min.css'>
         <link rel='stylesheet' href='css/spectrum.css'>
         <link rel='stylesheet' href='css/jquery.range.css'>
-        <link rel='stylesheet' href='style.css'>
+        <link rel='stylesheet' href='css/style.css'>
     </head>
     <body>
-        <div class='canvasContainer'>
+    	<div class='.container'>
 
-	    	<canvas id='mainCanvas' width='500' height='500'>
-	    		Canvas not supported !
-	    	</canvas>
-        
+    		<div class="row">
+	    		
+		        <div class='col-md-6 col-xs-6'>
+			        <div class="canvasContainer">
+				    	<canvas id='mainCanvas' width='500' height='500'>
+				    		Canvas not supported !
+				    	</canvas>
+			        </div>
+		        </div>
+
+		        <div class='col-md-4 col-xs-2'>
+		        	
+			        <div class='col-md-6 col-xs-12'>
+				        <div class="optionsContainer text-center">
+					        <div class='shapeChoice choiceButton' data-shape='Rectangle'>
+								Rectangle            
+					        </div>
+
+					        <div class='shapeChoice choiceButton' data-shape='Circle'>
+					            Circle
+					        </div>
+
+					        <div class='shapeChoice choiceButton' data-shape='Line'>
+					            Line
+					        </div>
+
+					        <div class='shapeChoice choiceButton toggled' data-shape='Pen'>
+					            Pen
+					        </div>
+
+					        <div class='choiceButton' id='text'>
+					        	Text
+					        </div>
+
+					        <div class='choiceButton' id='move'>
+					        	Move
+					        </div>
+
+					        <div class='choiceButton' id='undo'>
+					            Undo
+					        </div>
+
+					        <div class='choiceButton' id='redo'>
+					            Redo
+					        </div>
+
+				        	<div class='shapeChoice choiceButton' id='saveDrawing'>
+				        		Save Drawing
+				        	</div>
+					    </div>
+
+				    </div>
+
+				    <div class='col-md-6 col-xs-12'>
+
+					    <div class="fontContainer">
+
+					        <div id='fontBold' class='fontButton choiceButton'>
+					        	Bold
+					        </div>
+
+					        <div id='fontItalic' class='fontButton choiceButton'>
+					        	Italic
+					        </div>
+
+					        <div id='fillShape' class='fontButton choiceButton'>
+					        	Fill
+					        </div>
+
+							<div class='attributeChoice colorSpacing'>
+								<span>Line Color: </span>
+					            <input type='text' class='colorpicker' id='lineColor' />
+					        </div>
+
+							<div class='attributeChoice colorSpacing'>
+								<span>Fill Color: </span>
+					            <input type='text' class='colorpicker' id='fillColor' />
+					        </div>
+
+
+					        <div class='attributeChoice fontSpacing'>
+					        	<span>Font Size: </span>
+					        	<select id='fontSize'>
+					        		<option>8</option>
+					        		<option>10</option>
+					        		<option selected>12</option>
+					        		<option>14</option>
+					        		<option>16</option>
+					        		<option>20</option>
+					        		<option>24</option>
+					        		<option>28</option>
+					        		<option>32</option>
+					        		<option>48</option>
+					        	</select>
+					        </div>
+
+				        	<div class='attributeChoice fontSpacing'>
+					        	<span>Font Style: </span>
+					        	<select id='fontStyle'>
+					        		<option>Arial</option>
+					        		<option>Courier New</option>
+					        		<option selected>Georgia</option>
+					        		<option>Times New Roman</option>
+					        		<option>Verdana</option>
+					        	</select>
+					        </div>
+
+							<div class='attributeChoice colorSpacing'>
+								<span>Linewidth: </span>
+					            <input type='hidden' value='10' id='lineWidth' />
+					        </div>
+					        
+					        <textarea id='textBox'>
+					        	
+					        </textarea>
+
+				        </div>
+
+					</div>
+
+		        </div>
+
+		        <div class='col-md-2 col-xs-3'>
+		        	<div class="drawingsContainer">
+				        <div id='savedDrawings' class='text-center'>
+				        	<h3>
+				        		Drawings 
+				        	</h3>
+				        </div>
+			        </div>
+		        </div>
+	        </div>
+
         </div>
 
-        <div class='optionsContainer'>
-
-        	<div class='shapeChoice choices' id='loadDrawing'>
-        		Load
-        	</div>
-
-        	<div class='shapeChoice choices' id='saveDrawing'>
-        		Save
-        	</div>
-	        
-	        <div class='shapeChoice choices' data-shape='Rectangle'>
-				Rectangle            
-	        </div>
-
-	        <div class='shapeChoice choices' data-shape='Circle'>
-	            Circle
-	        </div>
-
-	        <div class='shapeChoice choices' data-shape='Line'>
-	            Line
-	        </div>
-
-	        <div class='shapeChoice choices' data-shape='Pen'>
-	            Pen
-	        </div>
-
-	        <div class='choices' id='undo'>
-	            Undo
-	        </div>
-
-	        <div class='choices' id='redo'>
-	            Redo
-	        </div>
-
-	        <div class='choices' id='move'>
-	        	Move
-	        </div>
-
-	        <div class='choices' id='text'>
-	        	Text
-	        </div>
-
-	        <div id='fontBold' class='fontButton'>
-	        	Bold
-	        </div>
-
-	        <div id='fontItalic' class='fontButton'>
-	        	Italic
-	        </div>
-
-	        <div id='fillShape' class='fontButton'>
-	        	Fill
-	        </div>
-	        
-			<div class='attributeChoice'>
-				<span>Line Color: </span>
-	            <input type='text' class='colorpicker' id='lineColor' />
-	        </div>
-
-			<div class='attributeChoice'>
-				<span>Fill Color: </span>
-	            <input type='text' class='colorpicker' id='fillColor' />
-	        </div>
-
-			<div class='attributeChoice'>
-				<span>Linewidth: </span>
-	            <input type='hidden' value='10' id='lineWidth' />
-	        </div>
-
-	        <div class='attributeChoice clearTop'>
-	        	<span>Font Size: </span>
-	        	<select id='fontSize'>
-	        		<option>8</option>
-	        		<option>10</option>
-	        		<option selected>12</option>
-	        		<option>14</option>
-	        		<option>16</option>
-	        		<option>20</option>
-	        		<option>24</option>
-	        		<option>28</option>
-	        		<option>32</option>
-	        		<option>48</option>
-	        	</select>
-	        </div>
-
-        	<div class='attributeChoice bottom'>
-	        	<span>Font Style: </span>
-	        	<select id='fontStyle'>
-	        		<option>Arial</option>
-	        		<option>Courier New</option>
-	        		<option selected>Georgia</option>
-	        		<option>Times New Roman</option>
-	        		<option>Verdana</option>
-	        	</select>
-	        </div>
-
-	        <textarea id='textBox'>
-	        	
-	        </textarea>
-
-	        <div id='savedDrawings'>
-	        	<h4>
-	        		Drawings 
-	        	</h4>
-	        </div>
-
-        </div>
-
-
-
-
-        <script src='js/jquery.min.js'></script>	
-        <script src='Base.js'></script>
+        <script src='js/jquery.min.js'></script>
+        <script src='js/bootstrap.min.js'></script>	
+        <script src='js/Base.js'></script>
         <script src='js/jquery.range.js'></script>
         <script src='js/spectrum.js'></script>
-        <script src='main.js'></script>
+        <script src='js/main.js'></script>
     </body>
 </html>
 

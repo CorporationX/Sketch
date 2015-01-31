@@ -1,0 +1,85 @@
+html, body{
+	padding: 0;
+	margin: 0;
+}
+
+.canvasContainer{
+	padding: 10px;
+}
+
+#backgroundCanvas{
+	position: absolute;
+	border: 1px solid black;
+	z-index: 1;
+}
+
+#mainCanvas{
+	position: absolute;
+	border: 1px solid black;
+	z-index: 2;
+}
+
+.optionsContainer, .fontContainer, .drawingsContainer{
+	padding: 10px;
+}
+
+.fontContainer .fontButton{
+	text-align: center;
+}
+
+.choiceButton{
+	background-color: black;
+	color: white;
+	border-radius: 10px;
+	padding: 10px 0;
+	margin: 5px 0;
+	-moz-user-select: none;
+	-webkit-user-select: none;
+	user-select: none;
+}
+
+.choiceButton:hover{
+	background-color: rgb(50, 50, 50);
+	cursor: pointer;
+}
+
+#textBox{
+	display: none;
+}
+
+.toggled, .toggled:hover{
+	background-color: red;
+}
+
+#savedDrawings{
+	border: 1px solid black;
+}
+
+.drawing:hover{
+	text-decoration: underline;
+	cursor: pointer;
+}
+
+.sp-replacer, #fontSize, #fontStyle{
+	float: right;
+}
+
+.colorSpacing{
+	height: 30px;
+	line-height: 30px;
+	margin: 10px 0;
+}
+
+.fontSpacing{
+	height: 20px;
+	line-height: 20px;
+	margin: 10px 0;
+}
+
+.back-bar{
+	margin-top: 10px;
+}
+
+#fontStyle{
+	margin-top: 5px;
+}
