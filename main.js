@@ -36,20 +36,72 @@ var canvasProps = {
 	canvasHeight: 500,
 	undoArray: [],
 	currentLineColor: '#000000',
-	currentFillColor: '#000000',
+	currentFillColor: '#FFFFFF',
 	currentLineWidth: 10,
 	currentFontSize: 12,
-	currentFontStyle: 'Georgia'
+	currentFontStyle: 'Georgia',
+	currentFontBold: false,
+	currentFontItalic: false,
+	currentFill: false,
+	loadedDrawings: [],
+	init: function () {
+		var shapes;
+
+		var drawingData = {
+			"user": "kristjanj11",
+			"template": false
+		};
+
+		$.ajax({
+			type: "GET",
+			contentType: "application/json; charset='utf-8",
+			url: "http://whiteboard.apphb.com/Home/GetList",
+			data: drawingData,
+			dataType: "jsonp",
+			crossDomain: true,
+			success: function (data) {
+
+				console.log('yay data', data);
+
+				var savedDrawings = $('#savedDrawings');
+
+				for (var i = 0; i < data.length; i++) {
+					var currentData = JSON.parse(data[i].WhiteboardContents);
+
+					var currentTitle = data[i].WhiteboardTitle;
+
+					canvasProps.loadedDrawings.push({
+						data: currentData,
+						title: currentTitle
+					});
+
+					var drawingElement = document.createElement('div');
+					drawingElement.innerHTML = currentTitle;
+					drawingElement.className = 'drawing';
+
+					savedDrawings.append(drawingElement);
+
+				}
+
+			},
+			error: function (xhr, err) {
+				console.log('booooo we dont have data', xhr, err);
+			}
+		});
+	}
 };
 
 
 var Shape = Base.extend({
-	constructor: function (x0, y0, x, y, lineWidth, lineColor, fillColor) {
+	constructor: function (shapeType, x0, y0, x, y, lineWidth, lineColor, fillColor) {
 		this.x0 = x0;
 		this.y0 = y0;
+		this.x = x;
+		this.y = y;
 		this.lineWidth = lineWidth;
 		this.lineColor = lineColor;
 		this.fillColor = fillColor;
+		this.shapeType = shapeType;
 	},
 	draw: function (ctx) {
 
@@ -67,8 +119,8 @@ var Shape = Base.extend({
 
 var global = {
 	Line: Shape.extend({
-		constructor: function (x0, y0, x, y, lineWidth, lineColor) {
-			this.base(x0, y0, x, y, lineWidth, lineColor);
+		constructor: function (shapeType, x0, y0, x, y, lineWidth, lineColor) {
+			this.base(shapeType, x0, y0, x, y, lineWidth, lineColor);
 		},
 		draw: function (ctx) {
 			if (canvasProps.isDrawing || canvasProps.isMoving) {
@@ -125,17 +177,25 @@ var global = {
 		}
 	}),
 	Rectangle: Shape.extend({
-		constructor: function (x0, y0, x, y, lineWidth, lineColor, fillColor) {
-			this.base(x0, y0, x, y, lineWidth, lineColor, fillColor);
+		constructor: function (shapeType, x0, y0, x, y, lineWidth, lineColor, fillColor, fill) {
+			this.base(shapeType, x0, y0, x, y, lineWidth, lineColor, fillColor);
+			this.fill = fill;
+			this.width = Math.abs(this.x - this.x0);
+			this.height = Math.abs(this.y - this.y0);
 		},
 		draw: function (ctx) {
 			if (canvasProps.isDrawing || canvasProps.isMoving) {
 				ctx.clearRect(0, 0, canvasProps.canvasWidth, canvasProps.canvasHeight);
 			}
+
 			ctx.beginPath();
+			ctx.fillStyle = this.fillColor;
+			if (this.fill) {
+				ctx.fillRect(this.x, this.y, this.width, this.height);
+			}
+			ctx.strokeStyle = this.lineColor;
 			ctx.rect(this.x, this.y, this.width, this.height);
 			ctx.lineWidth = this.lineWidth;
-			ctx.strokeStyle = this.lineColor;
 			ctx.stroke();
 		},
 		drawTo: function (x, y) {
@@ -146,13 +206,11 @@ var global = {
 		},
 		contains: function (x, y) {
 
-			console.log('width', this.width, '   height', this.height);
-
 			var offset = this.lineWidth / 2;
-			var leftEdge = this.x0 - offset;
-			var rightEdge = this.x0 + offset + this.width;
-			var topEdge = this.y0 - offset;
-			var bottomEdge = this.y0 + offset + this.height;
+			var leftEdge = this.x - offset;
+			var rightEdge = this.x + offset + this.width;
+			var topEdge = this.y - offset;
+			var bottomEdge = this.y + offset + this.height;
 
 			if (x < leftEdge || x > rightEdge || y < topEdge || y > bottomEdge) {
 				return false;
@@ -162,19 +220,28 @@ var global = {
 		moveTo: function (xChange, yChange) {
 			this.x += xChange;
 			this.y += yChange;
+			this.x0 += xChange;
+			this.y0 += yChange;
 		}
 	}),
 	Circle: Shape.extend({
-		constructor: function (x0, y0, x, y, lineWidth, lineColor, fillColor) {
-			this.base(x0, y0, x, y, lineWidth, lineColor, fillColor);
+		constructor: function (shapeType, x0, y0, x, y, lineWidth, lineColor, fillColor, fill, radius) {
+			this.base(shapeType, x0, y0, x, y, lineWidth, lineColor, fillColor);
+			this.fill = fill;
+			this.radius = radius;
 		},
 		draw: function (ctx) {
+
 			if (canvasProps.isDrawing || canvasProps.isMoving) {
 				ctx.clearRect(0, 0, canvasProps.canvasWidth, canvasProps.canvasHeight);
 			}
 			ctx.beginPath();
 			ctx.arc(this.x, this.y, this.radius, 0, 2 * Math.PI);
 			ctx.lineWidth = this.lineWidth;
+			ctx.fillStyle = this.fillColor;
+			if (this.fill) {
+				ctx.fill();
+			}
 			ctx.strokeStyle = this.lineColor;
 			ctx.stroke();
 		},
@@ -202,15 +269,20 @@ var global = {
 		moveTo: function (xChange, yChange) {
 			this.x += xChange;
 			this.y += yChange;
+			this.x0 += xChange;
+			this.y0 += yChange;
 		}
 	}),
 	Pen: Shape.extend({
-		constructor: function (x0, y0, x, y, lineWidth, lineColor) {
-			this.base(x0, y0, x, y, lineWidth, lineColor, fillColor);
-			this.points = [{
-				x: x0,
-				y: y0
-			}];
+		constructor: function (shapeType, x0, y0, x, y, lineWidth, lineColor, fillColor, fill, arrayPoints) {
+			this.base(shapeType, x0, y0, x, y, lineWidth, lineColor);
+			this.points = arrayPoints;
+			if (!arrayPoints) {
+				this.points = [{
+					x: x0,
+					y: y0
+				}];
+			}
 		},
 		drawTo: function (x, y) {
 			this.points.push({
@@ -261,11 +333,13 @@ var global = {
 		}
 	}),
 	Text: Shape.extend({
-		constructor: function (x0, y0, text, lineColor, fontSize, fontStyle) {
-			this.base(x0, y0, undefined, undefined, undefined, lineColor);
+		constructor: function (shapeType, x0, y0, text, lineColor, fontSize, fontStyle, bold, italic) {
+			this.base(shapeType, x0, y0, undefined, undefined, undefined, lineColor);
 			this.fontSize = fontSize;
 			this.fontStyle = fontStyle;
 			this.text = text;
+			this.bold = bold;
+			this.italic = italic;
 		},
 		draw: function (ctx) {
 
@@ -273,7 +347,20 @@ var global = {
 				ctx.clearRect(0, 0, canvasProps.canvasWidth, canvasProps.canvasHeight);
 			}
 
-			ctx.font = this.fontSize + 'px' + ' ' + this.fontStyle;
+			var font = '';
+
+			if (this.italic) {
+				font += 'italic ';
+			}
+
+			if (this.bold) {
+				font += 'bold ';
+			}
+
+			font += this.fontSize + 'px' + ' ' + this.fontStyle;
+
+			ctx.font = font;
+
 			ctx.fillStyle = this.lineColor;
 			ctx.textBaseline = 'top';
 			ctx.fillText(this.text, this.x0, this.y0);
@@ -330,7 +417,7 @@ $('#mainCanvas').mousedown(function (e) {
 		canvasProps.isDrawing = true;
 
 		// TODO: Check if function and comment what on earth this does
-		canvasProps.currentShape = new global[canvasProps.currentType](x0, y0, x0, y0, canvasProps.currentLineWidth, canvasProps.currentLineColor, canvasProps.currentFillColor);
+		canvasProps.currentShape = new global[canvasProps.currentType](canvasProps.currentType, x0, y0, x0, y0, canvasProps.currentLineWidth, canvasProps.currentLineColor, canvasProps.currentFillColor, canvasProps.currentFill);
 
 	} else if (canvasProps.canWrite) {
 
@@ -469,7 +556,7 @@ $('#textBox').bind('keypress', function (e) {
 
 		var text = $('#textBox').val();
 
-		canvasProps.currentShape = new global.Text(canvasProps.start.x0, canvasProps.start.y0, text, canvasProps.currentLineColor, canvasProps.currentFontSize, canvasProps.currentFontStyle);
+		canvasProps.currentShape = new global.Text("Text", canvasProps.start.x0, canvasProps.start.y0, text, canvasProps.currentLineColor, canvasProps.currentFontSize, canvasProps.currentFontStyle, canvasProps.currentFontBold, canvasProps.currentFontItalic);
 
 		canvasProps.shapes.push(canvasProps.currentShape);
 
@@ -486,13 +573,15 @@ $('#textBox').bind('keypress', function (e) {
 
 $('#lineColor').spectrum({
 	color: '#000',
+	showPalette: true,
 	change: function (color) {
 		canvasProps.currentLineColor = color.toHexString();
 	}
 });
 
 $('#fillColor').spectrum({
-	color: '#000',
+	color: '#FFF',
+	showPalette: true,
 	change: function (color) {
 		canvasProps.currentFillColor = color.toHexString();
 	}
@@ -517,3 +606,132 @@ $('#fontSize').change(function (e) {
 $('#fontStyle').change(function (e) {
 	canvasProps.currentFontStyle = $(this).val();
 });
+
+$('#fontBold').click(function (e) {
+	$(this).toggleClass('toggled');
+	canvasProps.currentFontBold = !canvasProps.currentFontBold;
+});
+
+$('#fontItalic').click(function (e) {
+	$(this).toggleClass('toggled');
+	canvasProps.currentFontItalic = !canvasProps.currentFontItalic;
+});
+
+$('#fillShape').click(function (e) {
+	$(this).toggleClass('toggled');
+	canvasProps.currentFill = !canvasProps.currentFill;
+});
+
+$('#saveDrawing').click(function (e) {
+	var drawingName = window.prompt("Please name your drawing");
+
+	var shapes = JSON.stringify(canvasProps.shapes);
+
+	if (drawingName) {
+		var drawingData = {
+			"user": "kristjanj11",
+			"name": drawingName,
+			"content": shapes,
+			"template": false
+		};
+
+		$.ajax({
+			type: "POST",
+			contentType: "application/json; charset='utf-8",
+			url: "http://whiteboard.apphb.com/Home/Save",
+			data: drawingData,
+			dataType: "jsonp",
+			crossDomain: true,
+			success: function (data) {
+				console.log('yay we have data', data);
+			},
+			error: function (xhr, err) {
+				console.log('booooo we dont have data', xhr, err);
+			}
+		});
+	}
+
+});
+
+$('#loadDrawing').click(function (e) {
+	var shapes;
+
+	var drawingData = {
+		"user": "kristjanj11",
+		"template": false
+	};
+
+	$.ajax({
+		type: "GET",
+		contentType: "application/json; charset='utf-8",
+		url: "http://whiteboard.apphb.com/Home/GetList",
+		data: drawingData,
+		dataType: "jsonp",
+		crossDomain: true,
+		success: function (data) {
+			console.log('yay we have data', data);
+		},
+		error: function (xhr, err) {
+			console.log('booooo we dont have data', xhr, err);
+		}
+	});
+
+});
+
+$(document).on('click', '.drawing', function (e) {
+	var keyToFind = $(this).html();
+
+
+	for (var i = 0; i < canvasProps.loadedDrawings.length; i++) {
+		if (canvasProps.loadedDrawings[i].title === keyToFind) {
+
+			canvasProps.undoArray = [];
+			canvasProps.shapes = [];
+			var foundObject = canvasProps.loadedDrawings[i];
+			var currObj = [];
+			var newItem = [];
+
+			for (var j = 0; j < foundObject.data.length; j++) {
+				if (foundObject.data[j].shapeType === 'Text') {
+					currObj = foundObject.data[j];
+					newItem = new global.Text(currObj.shapeType, currObj.x0, currObj.y0, currObj.text, currObj.lineColor, currObj.fontSize, currObj.fontStyle, currObj.bold, currObj.italic);
+				} else {
+
+					currObj = foundObject.data[j];
+					// Handle the creation of rectangles
+					if (currObj.shapeType === 'Rectangle') {
+
+						currObj.x0 = currObj.x + currObj.width;
+						currObj.y0 = currObj.y + currObj.height;
+						newItem = new global[currObj.shapeType](currObj.shapeType, currObj.x0, currObj.y0, currObj.x, currObj.y, currObj.lineWidth,
+							currObj.lineColor, currObj.fillColor, currObj.fill);
+
+					} else if (currObj.shapeType === 'Circle') {
+
+						newItem = new global.Circle(currObj.shapeType, currObj.x0, currObj.y0, currObj.x, currObj.y, currObj.lineWidth,
+							currObj.lineColor, currObj.fillColor, currObj.fill, currObj.radius);
+
+					} else if (currObj.shapeType === 'Pen') {
+
+						newItem = new global.Pen(currObj.shapeType, currObj.x0, currObj.y0, currObj.x, currObj.y, currObj.lineWidth,
+							currObj.lineColor, currObj.fillColor, currObj.fill, currObj.points);
+
+					} else {
+						newItem = new global[currObj.shapeType](currObj.shapeType, currObj.x0, currObj.y0, currObj.x, currObj.y, currObj.lineWidth,
+							currObj.lineColor, currObj.fillColor, currObj.fill);
+					}
+
+
+
+				}
+				canvasProps.shapes.push(newItem);
+			}
+			canvasProps.drawAll();
+
+		}
+	}
+
+});
+
+
+canvasProps.init();

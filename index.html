@@ -11,7 +11,7 @@
     </head>
     <body>
         <div class='canvasContainer'>
-	    	
+
 	    	<canvas id='mainCanvas' width='500' height='500'>
 	    		Canvas not supported !
 	    	</canvas>
@@ -19,6 +19,14 @@
         </div>
 
         <div class='optionsContainer'>
+
+        	<div class='shapeChoice choices' id='loadDrawing'>
+        		Load
+        	</div>
+
+        	<div class='shapeChoice choices' id='saveDrawing'>
+        		Save
+        	</div>
 	        
 	        <div class='shapeChoice choices' data-shape='Rectangle'>
 				Rectangle            
@@ -50,6 +58,18 @@
 
 	        <div class='choices' id='text'>
 	        	Text
+	        </div>
+
+	        <div id='fontBold' class='fontButton'>
+	        	Bold
+	        </div>
+
+	        <div id='fontItalic' class='fontButton'>
+	        	Italic
+	        </div>
+
+	        <div id='fillShape' class='fontButton'>
+	        	Fill
 	        </div>
 	        
 			<div class='attributeChoice'>
@@ -83,7 +103,7 @@
 	        	</select>
 	        </div>
 
-        	<div class='attributeChoice'>
+        	<div class='attributeChoice bottom'>
 	        	<span>Font Style: </span>
 	        	<select id='fontStyle'>
 	        		<option>Arial</option>
@@ -94,11 +114,18 @@
 	        	</select>
 	        </div>
 
+	        <textarea id='textBox'>
+	        	
+	        </textarea>
+
+	        <div id='savedDrawings'>
+	        	<h4>
+	        		Drawings 
+	        	</h4>
+	        </div>
+
         </div>
 
-        <textarea id='textBox'>
-        	
-        </textarea>
 
 
 
