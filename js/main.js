@@ -402,8 +402,11 @@ $(document).ready(function () {
 
 
 	$('#mainCanvas').mousedown(function (e) {
-		var x0 = e.pageX - this.offsetLeft;
-		var y0 = e.pageY - this.offsetTop;
+		var x0 = e.pageX - $(this).offset().left;
+		var y0 = e.pageY - $(this).offset().top;
+
+		console.log(this.offsetLeft);
+		console.log(this.offsetTop);
 
 		if (canvasProps.canMove) {
 
@@ -458,8 +461,8 @@ $(document).ready(function () {
 
 	$('#mainCanvas').mousemove(function (e) {
 
-		var x = e.pageX - this.offsetLeft;
-		var y = e.pageY - this.offsetTop;
+		var x = e.pageX - $(this).offset().left;
+		var y = e.pageY - $(this).offset().top;
 
 		if (canvasProps.isDrawing) {
 
@@ -487,8 +490,8 @@ $(document).ready(function () {
 	$('#mainCanvas').mouseup(function (e) {
 		if (canvasProps.isDrawing) {
 
-			var x = e.pageX - this.offsetLeft;
-			var y = e.pageY - this.offsetTop;
+			var x = e.pageX - $(this).offset().left;
+			var y = e.pageY - $(this).offset().top;
 
 			canvasProps.currentShape.drawTo(x, y);
 
